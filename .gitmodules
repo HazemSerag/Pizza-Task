@@ -1,0 +1,3 @@
+[submodule "pizza-angular"]
+	path = pizza-angular
+	url = https://github.com/HazemSerag/pizza-angular.git
