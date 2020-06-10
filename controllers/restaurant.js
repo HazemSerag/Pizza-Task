@@ -20,10 +20,7 @@ exports.getMenu = (req,res,next) => {
 }
 
 exports.addPizza = (req,res,next) => {
-
     const {title, description, price, imgUrl} =  req.body
-
-    console.log(title)
 
     const addedPizza = new Product({
         title : title,

@@ -14,26 +14,26 @@ exports.getCart = (req,res,next) => {
 }
 
 exports.addToCart = (req,res,next) => {
-    console.log(req.body)
+
     const prodId=req.body.productId;
     const quantity = req.body.quantity;
-    let updatedCartItems = [];
-    
 
+    let updatedCartItems = [];
     let existingCart;
     let addedProductIndex;
     let newQuantity = 1;
-    
 
-     Cart.findById('5ee0170bfc167c520cfccb2d')
+    Cart.findById('5ee0170bfc167c520cfccb2d')
     .then(cart=>{
         existingCart=cart;
-    }).then(()=>{
+    })
+    .then(()=>{
         updatedCartItems = [...existingCart.items];
         addedProductIndex=  existingCart.items.findIndex(p => {
             return p.productId.toString() === prodId.toString();
         })
-    }).then(()=>{
+    })
+    .then(()=>{
         if (addedProductIndex >= 0) {
             newQuantity = existingCart.items[addedProductIndex].quantity + quantity;
             updatedCartItems[addedProductIndex].quantity = newQuantity;
@@ -43,10 +43,14 @@ exports.addToCart = (req,res,next) => {
               productId: prodId,
               quantity: quantity
             });
-          }
+        }
     })
     .then(()=>{
-       return Cart.findByIdAndUpdate('5ee0170bfc167c520cfccb2d', {items:updatedCartItems})
+       Cart.findById('5ee0170bfc167c520cfccb2d')
+       .then(myCart=>{
+            myCart.items=updatedCartItems;
+            return myCart.save()
+       })
     })
     .then(()=>{
         res.send("cart updated");
@@ -54,32 +58,4 @@ exports.addToCart = (req,res,next) => {
     .catch(err=>{
         console.log(err)
     })
-
-
-
-
-    // res.send('asas')
-
-
-
-    // console.log(existingCart);
-
-    // const addedProductIndex = .items.findIndex(p => {
-    //     return p.productId.toString() === product._id.toString();
-    //   })
-
-    // const newCart = new Cart({
-    //     items:[{productId:req.body.productId, quantity:req.body.quantity}]
-    // })
-
-    // newCart.save()
-    // .then(result=>{
-    //     res.send('cart creatd')
-
-    // })
-    // .catch(err=>{
-    //     console.log(err)
-    // })
-    
-
 }
