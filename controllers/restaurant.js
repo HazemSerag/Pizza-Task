@@ -29,22 +29,3 @@ exports.getMenu = (req,res,next) => {
     res.send('<h1>Menu</h1>');
 }
 
-exports.addPizza = (req,res,next) => {
-    const {title, description, price, imgUrl} =  req.body
-
-    const addedPizza = new Product({
-        title : title,
-        description : description,
-        price : price,
-        imgUrl : imgUrl
-    })
-
-    addedPizza.save()
-    .then(product=> {
-        console.log('pizza Added')
-        res.send(product)
-    })
-    .catch(err=>{
-        console.log(err)
-    })
-}

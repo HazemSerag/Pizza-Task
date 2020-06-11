@@ -4,6 +4,8 @@ const path = require('path');
 
 // Custom local modules
 const restaurantRoutes = require('./routes/restaurant')
+const adminRoutes = require('./routes/api')
+const User = require('./models/user')
 // End custom local moudles
 
 
@@ -31,22 +33,50 @@ app.use(bodyParser.json())
 app.use(express.static(path.join(mainDirectory, 'pizza-angular')))
 //End Configurations
 
+app.use((req, res, next) => {
+    User.findById('5ee24009ecd72032acc2e1f3')
+        .then(user => {
+            req.user = user;
+            next()
+        })
+        .catch(err => {
+            console.log(err)
+        })
+})
+
+app.use('/api',adminRoutes);
 
 app.use(restaurantRoutes);
 
-app.get('/' , (req,res,next)=>{
+app.get('/', (req, res, next) => {
     console.log('Helloo')
     res.send('<h1>hello<h1>')
 })
 
 mongoose.connect(MongoConnection_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
-.then(() => {
-    console.log('Connected via Mongoose')
-    app.listen(port);
-})
-.catch(err => {
-    console.log(err)
-})
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    })
+    .then(() => {
+        console.log('Connected via Mongoose')
+
+        User.findOne().then(user => {
+            if (!user) {
+                const user = new User({
+                    username: 'Hazem',
+                    email: "hazemserag@gmail.com",
+                    password: "123456",
+                    cart: {
+                        items: []
+                    }
+                })
+                user.save()
+            }
+
+        })
+
+        app.listen(port);
+    })
+    .catch(err => {
+        console.log(err)
+    })
