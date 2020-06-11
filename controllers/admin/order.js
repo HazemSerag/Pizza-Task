@@ -1,6 +1,8 @@
 //Models
 const Order = require('../../models/order');
 const Cart = require('../../models/cart');
+// const Product = require('../../models/Product');
+
 //End Models
 
 exports.getOrder = (req,res,next) =>{
@@ -23,7 +25,9 @@ exports.addOrder = (req,res,next)=>{
         const cartItems = cart.items.map(product=>{
             return {
                 product:{
-                    ...product.productId
+                    productId:product.id,
+                    title:product.title,
+                    price:product.price
                 },
                 quantity:product.quantity
             }

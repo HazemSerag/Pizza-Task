@@ -15,6 +15,16 @@ exports.getHome = (req,res,next) => {
     })
 }
 
+exports.getProduct = (req,res,nect) => {
+    Product.findById(req.params.prodId)
+    .then(product=>{
+        res.send(product)
+    })
+    .catch(err=>{
+        console.log(err)
+    })
+}
+
 exports.getMenu = (req,res,next) => {
     res.send('<h1>Menu</h1>');
 }

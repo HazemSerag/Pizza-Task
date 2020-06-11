@@ -1,12 +1,14 @@
 //Models
 const Cart = require('../../models/cart');
+const Product = require('../../models/product');
 //End Models
 
 exports.getCart = (req,res,next) => {
-    Cart.find()
+    Cart.findById('5ee0170bfc167c520cfccb2d')
     .then(cart=>{
-        console.log(cart)
-        res.send('cart')
+
+        res.send(cart)
+
     })
     .catch(err=>{
         console.log(err)
@@ -15,8 +17,8 @@ exports.getCart = (req,res,next) => {
 
 exports.addToCart = (req,res,next) => {
 
-    const prodId=req.body.productId;
-    const quantity = req.body.quantity;
+    // console.log("back" + req.body.productId)
+    const {productId:prodId, title, price, imgUrl, quantity }=req.body;
 
     let updatedCartItems = [];
     let existingCart;
@@ -41,6 +43,9 @@ exports.addToCart = (req,res,next) => {
           else {
             updatedCartItems.push({
               productId: prodId,
+              title:title,
+              price:price,
+              imgUrl:imgUrl,
               quantity: quantity
             });
         }
@@ -53,9 +58,10 @@ exports.addToCart = (req,res,next) => {
        })
     })
     .then(()=>{
-        res.send("cart updated");
+        res.status(201).send("cart updated");
     })
     .catch(err=>{
+        console.log('error adding to cart')
         console.log(err)
     })
 }

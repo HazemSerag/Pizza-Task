@@ -15,6 +15,8 @@ router.get('/', restaurantController.getHome)
 
 router.get('/menu', restaurantController.getMenu)
 
+router.get('/menu/:prodId', restaurantController.getProduct)
+
 router.post('/api/add-pizza', restaurantController.addPizza)
 
 router.get('/cart', cartController.getCart)

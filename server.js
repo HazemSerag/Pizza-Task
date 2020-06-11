@@ -12,6 +12,7 @@ const restaurantRoutes = require('./routes/restaurant')
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const cors = require('cors')
 // End Third Party
 
 //Constants
@@ -21,7 +22,10 @@ const mainDirectory = path.dirname(process.mainModule.filename);
 const MongoConnection_URI = 'mongodb+srv://pizza-app:JBoqAXm1NSJgaKPF@cluster0-aulyz.mongodb.net/pizza-shop?retryWrites=true&w=majority';
 //End Constants
 
+
 //Configurations
+app.use(cors())
+
 app.use(bodyParser.json())
 
 app.use(express.static(path.join(mainDirectory, 'pizza-angular')))
