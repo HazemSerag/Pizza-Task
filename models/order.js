@@ -16,11 +16,11 @@ const orderSchema = new Schema({
             }
         }
     ],
-    userId:{
-        type:Schema.Types.ObjectId,
-        required:true,
-        ref:'User'
-    },
+    // userId:{
+    //     type:Schema.Types.ObjectId,
+    //     required:true,
+    //     ref:'User'
+    // },
     details:{
         type:Object,
         required:true

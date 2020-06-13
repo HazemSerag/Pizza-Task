@@ -14,14 +14,20 @@ const User = require('./models/user')
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const cors = require('cors')
+const cors = require('cors');
+const session = require('express-session');
+const MongoDBStore= require('connect-mongodb-session')(session)
 // End Third Party
 
 //Constants
 const app = express();
 const port = process.env.PORT || 8080;
 const mainDirectory = path.dirname(process.mainModule.filename);
-const MongoConnection_URI = 'mongodb+srv://pizza-app:JBoqAXm1NSJgaKPF@cluster0-aulyz.mongodb.net/pizza-shop?retryWrites=true&w=majority';
+const MongoConnection_URI = 'mongodb+srv://pizza-app:JBoqAXm1NSJgaKPF@cluster0-aulyz.mongodb.net/pizza-shop';
+const store = new MongoDBStore({
+    uri:MongoConnection_URI,
+    collection:'sessions'
+});
 //End Constants
 
 
@@ -30,8 +36,15 @@ app.use(cors())
 
 app.use(bodyParser.json())
 
-app.use(express.static(path.join(mainDirectory, 'pizza-angular')))
+app.use(express.static(path.join(mainDirectory, 'pizza-angular/dist/pizza-angular')))
 //End Configurations
+
+app.use(session({
+    secret:'abc',
+    resave:false,
+    saveUninitialized:false,
+    store:store
+}))
 
 app.use((req, res, next) => {
     User.findById('5ee24009ecd72032acc2e1f3')
@@ -44,13 +57,20 @@ app.use((req, res, next) => {
         })
 })
 
+
+app.use((req,res,next)=>{
+    if(!req.session.cart){
+        req.session.cart={items:[]};
+    }
+    next()
+})
+
 app.use('/api',adminRoutes);
 
-app.use(restaurantRoutes);
+app.use('/restaurant',restaurantRoutes);
 
-app.get('/', (req, res, next) => {
-    console.log('Helloo')
-    res.send('<h1>hello<h1>')
+app.get('*', (req, res, next) => {
+    res.sendFile(path.join(mainDirectory, 'pizza-angular/dist/pizza-angular/index.html'))
 })
 
 mongoose.connect(MongoConnection_URI, {
@@ -79,4 +99,4 @@ mongoose.connect(MongoConnection_URI, {
     })
     .catch(err => {
         console.log(err)
-    })
+    })  

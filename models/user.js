@@ -1,3 +1,8 @@
+//Helpers
+const helperFunctions = require('../helperFunctions');
+//End Helpers
+
+
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -15,59 +20,30 @@ const userSchema = new Schema({
     required:true
   },
 
-  cart: {
-    items: [{
-      productId : {
-        type: Schema.Types.ObjectId,
-        ref:'Product',
-        required: true
-      },
-      quantity: {
-        type: Number,
-        required: true
-      }
-    }]
-  }
+  // cart: {
+  //   items: [{
+  //     productId : {
+  //       type: Schema.Types.ObjectId,
+  //       ref:'Product',
+  //       required: true
+  //     },
+  //     quantity: {
+  //       type: Number,
+  //       required: true
+  //     }
+  //   }]
+  // }
 });
 
-userSchema.methods.addToCart = function(addedProduct,quantity){
+// userSchema.methods.addToCart = function(addedProduct,quantity){
+//     this.cart =  helperFunctions.addToCart(this.cart,addedProduct,quantity)
+//     return this.save();
+// }
 
-    const {_id:prodId }=addedProduct;
-
-    let newQuantity;
-    const addedQuantity=quantity;
-    console.log("Here " + addedQuantity)
-
-    //check if the product already in Cart
-    const addedProductIndex=  this.cart.items.findIndex(p => {
-        return p.productId.toString() === prodId.toString();
-    })
-    const updatedCartItems = [...this.cart.items];
-   
-    if (addedProductIndex >= 0) {
-        newQuantity = this.cart.items[addedProductIndex].quantity + addedQuantity;
-        updatedCartItems[addedProductIndex].quantity = newQuantity;
-    } else {
-        updatedCartItems.push({
-            productId: prodId,
-            quantity: addedQuantity
-        });
-    }
-    const updatedCart = {
-        items:updatedCartItems
-    };
-    this.cart=updatedCart;
-    return this.save();
-}
-
-userSchema.methods.deleteCartItem = function(prodId){
-    
-    const updatedCartItems = this.cart.items.filter(p=>{
-        return  p.productId.toString() !== prodId.toString()
-    })
-    this.cart.items=updatedCartItems;
-    return this.save()
-}
+// userSchema.methods.deleteCartItem = function(prodId){
+//      this.cart.items = helperFunctions.deleteCartItem(this.cart,prodId)
+//     return this.save()
+// }
 
 userSchema.methods.clearCart = function(){
     this.cart = {

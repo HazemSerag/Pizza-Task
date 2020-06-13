@@ -15,7 +15,7 @@ const router = express.Router();
 
 router.get('/', restaurantController.getHome)
 
-router.get('/menu', restaurantController.getMenu)
+router.get('/menu', restaurantController.getHome)
 
 router.get('/menu/:prodId', restaurantController.getProduct)
 
