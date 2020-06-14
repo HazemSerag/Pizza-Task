@@ -19,37 +19,15 @@ const userSchema = new Schema({
     type:String,
     required:true
   },
-
-  // cart: {
-  //   items: [{
-  //     productId : {
-  //       type: Schema.Types.ObjectId,
-  //       ref:'Product',
-  //       required: true
-  //     },
-  //     quantity: {
-  //       type: Number,
-  //       required: true
-  //     }
-  //   }]
-  // }
-});
-
-// userSchema.methods.addToCart = function(addedProduct,quantity){
-//     this.cart =  helperFunctions.addToCart(this.cart,addedProduct,quantity)
-//     return this.save();
-// }
-
-// userSchema.methods.deleteCartItem = function(prodId){
-//      this.cart.items = helperFunctions.deleteCartItem(this.cart,prodId)
-//     return this.save()
-// }
-
-userSchema.methods.clearCart = function(){
-    this.cart = {
-        items:[]
+  cart:{
+    items:{
+      type:Array,
     }
-    return this.save();
+  }
+});
+userSchema.methods.storeCartItems = function(cartItems){
+  this.cart.items=cartItems;
+  return this.save()
 }
-
 module.exports = mongoose.model('User', userSchema);
+

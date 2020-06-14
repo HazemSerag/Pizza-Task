@@ -3,8 +3,6 @@ const Product = require('../models/product');
 //End Models
 
 exports.getHome = (req,res,next) => {
-    // req.session.isLogged = true;
-    // console.log(req.session.isLogged)
     Product.find()
     .then(products=>{
         console.log('Products')
@@ -28,9 +26,6 @@ exports.getProduct = (req,res,nect) => {
 }
 
 exports.getMenu = (req,res,next) => {
-    // req.session.isLogged = false;
-    // console.log(req.session.isLogged)
-
     res.send('<h1>Menu</h1>');
 }
 

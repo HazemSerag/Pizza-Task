@@ -14,6 +14,8 @@ router.post('/add-to-cart', adminController.addToCart)
 
 router.post('/delete-from-cart', adminController.removeFromCart)
 
+router.post('/update-cart', adminController.updateCart)
+
 router.post('/add-order', adminController.addOrder)
 
 module.exports = router;

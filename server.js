@@ -5,8 +5,12 @@ const path = require('path');
 // Custom local modules
 const restaurantRoutes = require('./routes/restaurant')
 const adminRoutes = require('./routes/api')
-const User = require('./models/user')
+const authRoutes = require('./routes/auth')
 // End custom local moudles
+
+//Models
+const User = require('./models/user')
+//End Models
 
 
 
@@ -46,16 +50,18 @@ app.use(session({
     store:store
 }))
 
-app.use((req, res, next) => {
-    User.findById('5ee24009ecd72032acc2e1f3')
-        .then(user => {
-            req.user = user;
-            next()
-        })
-        .catch(err => {
-            console.log(err)
-        })
-})
+// app.use((req, res, next) => {
+//     User.findById('5ee24009ecd72032acc2e1f3')
+//         .then(user => {
+//             req.user = user;
+//             next()
+//         })
+//         .catch(err => {
+//             console.log(err)
+//         })
+
+//         throw new Error('asdsa')
+// })
 
 
 app.use((req,res,next)=>{
@@ -65,6 +71,8 @@ app.use((req,res,next)=>{
     next()
 })
 
+app.use('/auth',authRoutes);
+
 app.use('/api',adminRoutes);
 
 app.use('/restaurant',restaurantRoutes);
@@ -72,6 +80,16 @@ app.use('/restaurant',restaurantRoutes);
 app.get('*', (req, res, next) => {
     res.sendFile(path.join(mainDirectory, 'pizza-angular/dist/pizza-angular/index.html'))
 })
+
+//Error global handling function
+app.use((error,req,res,next)=>{
+    console.log('global Error')
+    res.sendFile(path.join(mainDirectory, '500.html'))
+
+})
+
+
+
 
 mongoose.connect(MongoConnection_URI, {
         useNewUrlParser: true,
