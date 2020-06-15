@@ -3,29 +3,43 @@ const Product = require('../models/product');
 const Order = require('../models/order');
 //End Models
 
+//third party
+const nodemailer = require('nodemailer');
+const sendgridTransport = require('nodemailer-sendgrid-transport')
+//End third party
+
 //Helpers
 const helperFunctions = require('../helperFunctions')
 //End Helpers
 
+
+const transport = nodemailer.createTransport(sendgridTransport({
+    auth: {
+        api_key: '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'
+
+    }
+}))
+
 exports.getCart = (req, res, next) => {
-    // throw new Error('asd')
     const products = req.session.cart.items
-    console.log(products)
     res.send(products)
 }
 
 exports.addToCart = (req, res, next) => {
-    const {productId: prodId, quantity} = req.body;
+    const {
+        productId: prodId,
+        quantity
+    } = req.body;
     Product.findById(prodId)
         .then(product => {
-            return helperFunctions.addToCart(req.session.cart, product, quantity, false)
+            return helperFunctions.addToCart(req.session.cart, product, quantity)
         }).then((updatedCart) => {
             req.session.cart = updatedCart
         })
         .then(() => {
             res.send({
                 msg: "Added to cart",
-                success:true
+                success: true
             })
         }).catch(err => {
             console.log(err)
@@ -34,21 +48,21 @@ exports.addToCart = (req, res, next) => {
 
 exports.removeFromCart = (req, res, next) => {
     const prodId = req.body.productId
-    console.log("Id" + prodId)
     const updatedItems = helperFunctions.deleteCartItem(req.session.cart, prodId);
-    console.log(updatedItems)
     req.session.cart.items = updatedItems
     res.send({
         msg: "Removed",
-        success:true
+        success: true
     })
 }
 
-exports.updateCart = (req,res,next)=>{
-    console.log(req.session.cart)
+exports.updateCart = (req, res, next) => {
     const updatedCartItems = req.body;
-    req.session.cart.items=updatedCartItems;
-    res.send({msg:"cart updated", success:true})
+    req.session.cart.items = updatedCartItems;
+    res.send({
+        msg: "cart updated",
+        success: true
+    })
 }
 
 exports.getOrders = (req, res, next) => {
@@ -57,7 +71,6 @@ exports.getOrders = (req, res, next) => {
             'details.userId': `${userId}`
         })
         .then(orders => {
-            console.log('console orders' + orders)
             res.send(orders);
         })
         .catch(err => {
@@ -68,13 +81,12 @@ exports.getOrders = (req, res, next) => {
 exports.getOrder = (req, res, next) => {
     Order.findById(req.params.orderId)
         .then(order => {
-            if(order.details.userId.toString() === req.session.userId.toString()){
-                console.log('Order is Mine')
-               return res.send(order)
+            if (order.details.userId.toString() === req.session.userId.toString()) {
+                return res.send(order)
             }
-
-            console.log('Order is not Mine')
-            res.send("Not Authorized")
+            res.send({
+                msg: "Not Authorized"
+            })
 
         })
         .catch(err => {
@@ -83,21 +95,39 @@ exports.getOrder = (req, res, next) => {
 }
 
 exports.addOrder = (req, res, next) => {
-
-    console.log(req.body)
-    //dummy form for order details
-    const orderDetails = req.body.details
+    const {
+        items,
+        details,
+        currency,
+        totalPrice
+    } = req.body
     const order = new Order({
-        items: req.body.items,
-        details: orderDetails
+        items: items,
+        details: details,
+        currency: currency,
+        totalPrice: totalPrice
     })
 
     return order.save().then(() => {
         req.session.cart.items = []
     }).then(msg => {
         res.send({
-            msg: "Order created",
-            success:true
+            msg: "Thank you! The order has been received and it will arrive to you within 45min, for order details you can check your Email Adress.",
+            success: true
+        })
+
+        return transport.sendMail({
+            to: details.email,
+            from: 'pizzaShop@delivery.com',
+            subject: 'Your Order Details',
+            html: `
+                <h1>Dear ${details.name}, we received your Order.</h1>
+                <h1>You ordered a new order with ${totalPrice}${currency}.</h1>
+                <h2>To : ${details.address}</h2>
+                <h3>Thank you</h3>
+            `
+        }).catch(err => {
+            console.log(err)
         })
     }).catch(err => {
         console.log(err)
@@ -105,6 +135,7 @@ exports.addOrder = (req, res, next) => {
 
 }
 
+///for adding products
 exports.addPizza = (req, res, next) => {
     const {
         title,
@@ -122,7 +153,6 @@ exports.addPizza = (req, res, next) => {
 
     addedPizza.save()
         .then(product => {
-            console.log('pizza Added')
             res.send(product)
         })
         .catch(err => {

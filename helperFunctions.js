@@ -1,16 +1,17 @@
-exports.addToCart  = function(cart,addedProduct,quantity){
-    const {_id:prodId }=addedProduct;
-  
+exports.addToCart = function (cart, addedProduct, quantity) {
+    const {
+        _id: prodId
+    } = addedProduct;
+
     let newQuantity;
-    const addedQuantity=quantity;
-    console.log("Here " + addedQuantity)
-  
+    const addedQuantity = quantity;
+
     //check if the product already in Cart
-    const addedProductIndex=  cart.items.findIndex(p => {
+    const addedProductIndex = cart.items.findIndex(p => {
         return p.product._id.toString() === prodId.toString();
     })
     const updatedCartItems = [...cart.items];
-   
+
     if (addedProductIndex >= 0) {
         newQuantity = cart.items[addedProductIndex].quantity + addedQuantity;
         updatedCartItems[addedProductIndex].quantity = newQuantity;
@@ -21,15 +22,13 @@ exports.addToCart  = function(cart,addedProduct,quantity){
         });
     }
     const updatedCart = {
-        items:updatedCartItems
+        items: updatedCartItems
     };
-    return cart=updatedCart;
+    return cart = updatedCart;
 }
 
-exports.deleteCartItem = function(cart,prodId){
-   return cart.items.filter(p=>{
-        return  p.product._id.toString() !== prodId.toString()
+exports.deleteCartItem = function (cart, prodId) {
+    return cart.items.filter(p => {
+        return p.product._id.toString() !== prodId.toString()
     })
 }
-
-

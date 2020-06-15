@@ -11,7 +11,6 @@ const adminController = require('../controllers/admin')
 const authMiddleware = require('../middleware/is-authorized')
 //middlewars
 
-
 const router = express.Router();
 
 router.get('/', restaurantController.getHome)

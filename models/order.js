@@ -19,6 +19,14 @@ const orderSchema = new Schema({
     details:{
         type:Object,
         required:true
+    },
+    currency:{
+        type:String,
+        required:true
+    },
+    totalPrice:{
+        type:Number,
+        required:true
     }
 })
 
