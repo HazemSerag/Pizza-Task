@@ -1,6 +1,7 @@
 //Models
 const Product = require('../models/product');
 const Order = require('../models/order');
+const User = require('../models/user')
 //End Models
 
 //third party
@@ -9,7 +10,8 @@ const sendgridTransport = require('nodemailer-sendgrid-transport')
 //End third party
 
 //Helpers
-const helperFunctions = require('../helperFunctions')
+const helperFunctions = require('../helperFunctions');
+const user = require('../models/user');
 //End Helpers
 
 
@@ -21,6 +23,13 @@ const transport = nodemailer.createTransport(sendgridTransport({
 }))
 
 exports.getCart = (req, res, next) => {
+    if(req.session.userId){
+        return User.findOne({_id:req.session.userId})
+        .then(user=>{
+            const products = user.cart.items;
+            res.send(products)
+        })
+    }
     const products = req.session.cart.items
     res.send(products)
 }
@@ -34,9 +43,22 @@ exports.addToCart = (req, res, next) => {
         .then(product => {
             return helperFunctions.addToCart(req.session.cart, product, quantity)
         }).then((updatedCart) => {
-            req.session.cart = updatedCart
+           return req.session.cart = updatedCart
         })
-        .then(() => {
+        .then((updateCart) => {
+            if(req.session.userId){
+                console.log('HERE')
+                
+                return User.findOne({_id:req.session.userId})
+                .then(user=>{
+                    user.storeCartItems(updateCart.items)
+                }).then(()=>{
+                    res.send({
+                        msg: "Added to cart",
+                        success: true
+                    })
+                })
+            }
             res.send({
                 msg: "Added to cart",
                 success: true

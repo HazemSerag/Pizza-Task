@@ -71,7 +71,7 @@ exports.login = (req, res, next) => {
         password
     } = req.body;
     User.findOne({
-            "email": email
+            "email": email.toLowerCase()
         })
         .then(user => {
             if (!user) {
