@@ -23,12 +23,14 @@ const transport = nodemailer.createTransport(sendgridTransport({
 }))
 
 exports.getCart = (req, res, next) => {
-    if(req.session.userId){
-        return User.findOne({_id:req.session.userId})
-        .then(user=>{
-            const products = user.cart.items;
-            res.send(products)
-        })
+    if (req.session.userId) {
+        return User.findOne({
+                _id: req.session.userId
+            })
+            .then(user => {
+                const products = user.cart.items;
+                res.send(products)
+            })
     }
     const products = req.session.cart.items
     res.send(products)
@@ -43,21 +45,23 @@ exports.addToCart = (req, res, next) => {
         .then(product => {
             return helperFunctions.addToCart(req.session.cart, product, quantity)
         }).then((updatedCart) => {
-           return req.session.cart = updatedCart
+            return req.session.cart = updatedCart
         })
         .then((updateCart) => {
-            if(req.session.userId){
+            if (req.session.userId) {
                 console.log('HERE')
-                
-                return User.findOne({_id:req.session.userId})
-                .then(user=>{
-                    user.storeCartItems(updateCart.items)
-                }).then(()=>{
-                    res.send({
-                        msg: "Added to cart",
-                        success: true
+
+                return User.findOne({
+                        _id: req.session.userId
                     })
-                })
+                    .then(user => {
+                        user.storeCartItems(updateCart.items)
+                    }).then(() => {
+                        res.send({
+                            msg: "Added to cart",
+                            success: true
+                        })
+                    })
             }
             res.send({
                 msg: "Added to cart",
@@ -72,6 +76,21 @@ exports.removeFromCart = (req, res, next) => {
     const prodId = req.body.productId
     const updatedItems = helperFunctions.deleteCartItem(req.session.cart, prodId);
     req.session.cart.items = updatedItems
+    if (req.session.userId) {
+        return User.findOne({
+                _id: req.session.userId
+            })
+            .then(user => {
+                return user.storeCartItems(updatedItems)
+            }).then(() => {
+                res.send({
+                    msg: "Removed",
+                    success: true
+                })
+            }).catch(err => {
+                console.log(err)
+            })
+    }
     res.send({
         msg: "Removed",
         success: true
@@ -80,11 +99,28 @@ exports.removeFromCart = (req, res, next) => {
 
 exports.updateCart = (req, res, next) => {
     const updatedCartItems = req.body;
-    req.session.cart.items = updatedCartItems;
-    res.send({
-        msg: "cart updated",
-        success: true
-    })
+    if (req.session.userId) {
+        User.findOne({
+                _id: req.session.userId
+            })
+            .then(user => {
+                return user.storeCartItems(updatedCartItems)
+            }).then(() => {
+                res.send({
+                    msg: "cart updated",
+                    success: true
+                })
+            }).catch(err => {
+                console.log(err)
+            })
+    } else {
+        req.session.cart.items = updatedCartItems;
+        res.send({
+            msg: "cart updated",
+            success: true
+        })
+    }
+
 }
 
 exports.getOrders = (req, res, next) => {
@@ -130,30 +166,37 @@ exports.addOrder = (req, res, next) => {
         totalPrice: totalPrice
     })
 
-    return order.save().then(() => {
-        req.session.cart.items = []
-    }).then(msg => {
-        res.send({
-            msg: "Thank you! The order has been received and it will arrive to you within 45min, for order details you can check your Email Adress.",
-            success: true
-        })
+    order.save()
+        .then(() => {
+            req.session.cart.items = []
+            if (req.session.userId) {
+                return User.findOne({
+                        _id: req.session.userId
+                    })
+                    .then(user => {
+                        user.storeCartItems([])
+                    })
+            }
 
-        return transport.sendMail({
-            to: details.email,
-            from: 'pizzaShop@delivery.com',
-            subject: 'Your Order Details',
-            html: `
+            return transport.sendMail({
+                to: details.email,
+                from: 'pizzaShop@delivery.com',
+                subject: 'Your Order Details',
+                html: `
                 <h1>Dear ${details.name}, we received your Order.</h1>
                 <h1>You ordered a new order with ${totalPrice}${currency}.</h1>
                 <h2>To : ${details.address}</h2>
                 <h3>Thank you</h3>
             `
+            })
+        }).then(()=>{
+            res.send({
+                msg: "Thank you! The order has been received and it will arrive to you within 45min, for order details you can check your Email Adress.",
+                success: true
+            })
         }).catch(err => {
             console.log(err)
         })
-    }).catch(err => {
-        console.log(err)
-    })
 
 }
 

@@ -51,12 +51,16 @@ app.use(session({
 }))
 
 app.use((req, res, next) => {
-    if (!req.session.cart) {
+    // req.session.userId=req.session.userId
+    if (req.session.cart) {
+
+    }else{
         req.session.cart = {
             items: []
         };
     }
     next()
+
 })
 
 app.use('/auth', authRoutes);
